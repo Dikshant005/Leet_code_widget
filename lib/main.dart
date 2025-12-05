@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'widgets/heat_map_widget.dart'; // Ensure this path is correct
+import 'widgets/heat_map_widget.dart'; 
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Added for safety
+  WidgetsFlutterBinding.ensureInitialized(); 
   runApp(const MyApp());
 }
 

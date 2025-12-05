@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/api_service.dart'; // Import the service
+import '../services/api_service.dart'; 
 
 class LeetCodeHeatMapWidget extends StatefulWidget {
   final String username;
@@ -78,13 +78,12 @@ class _LeetCodeHeatMapWidgetState extends State<LeetCodeHeatMapWidget> {
         final data = snapshot.data!;
 
         // ------------------------------------------------------------------
-        // ✅ THE FIX: Trigger the Home Screen Widget update here!
+        // Trigger the Home Screen Widget update here!
         // This runs once the UI is built, sending the data to the Android widget.
         // ------------------------------------------------------------------
         WidgetsBinding.instance.addPostFrameCallback((_) {
            WidgetUpdateService.updateHomeScreenWidget(data);
         });
-        // ------------------------------------------------------------------
         
         // Parse Data
         final rawCalendarMap = jsonDecode(data["submissionCalendar"]) as Map<String, dynamic>;

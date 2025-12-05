@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:home_widget/home_widget.dart';
-import '../widgets/static_heat_map.dart'; // We need to create this next
+import '../widgets/static_heat_map.dart';
 
 class LeetCodeCalendarService {
   static const _apiUrl = "https://leetcode.com/graphql";
@@ -49,7 +49,6 @@ class WidgetUpdateService {
 
     try {
       // 1. Render Widget to Image
-      // REMOVED 'fileName' to fix the error. 
       // The plugin will generate a temp path (e.g. .../app_flutter/temp_123.png)
       final path = await HomeWidget.renderFlutterWidget(
         StaticHeatMap(data: data), 

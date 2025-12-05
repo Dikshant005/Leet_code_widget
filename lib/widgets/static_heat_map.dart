@@ -8,12 +8,11 @@ class StaticHeatMap extends StatelessWidget {
 
   const StaticHeatMap({super.key, required this.data});
 
-  // FIXED: Brighter colors so they are visible on the widget
   Color _colorForCount(int count) {
-    if (count == 0) return const Color(0xFF2C2C2C); // Empty (Dark Grey)
-    if (count == 1) return Colors.green.shade800;   // Low (Visible Dark Green)
-    if (count <= 3) return Colors.green.shade600;   // Medium (Green)
-    return Colors.green.shade400;                   // High (Bright Green)
+    if (count == 0) return const Color(0xFF2C2C2C); 
+    if (count == 1) return Colors.green.shade800;   
+    if (count <= 3) return Colors.green.shade600;  
+    return Colors.green.shade400;                   
   }
 
   @override

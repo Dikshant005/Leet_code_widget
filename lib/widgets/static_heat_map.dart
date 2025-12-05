@@ -1,34 +1,54 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui' as ui;
+import 'dart:ui'as ui;
+
 class StaticHeatMap extends StatelessWidget {
   final Map<String, dynamic> data;
 
   const StaticHeatMap({super.key, required this.data});
 
+  // FIXED: Brighter colors so they are visible on the widget
   Color _colorForCount(int count) {
-    if (count == 0) return const Color(0xFF2C2C2C);
-    if (count == 1) return const Color(0xFF1B5E20);
-    if (count <= 3) return const Color(0xFF2E7D32);
-    return const Color(0xFF4CAF50);
+    if (count == 0) return const Color(0xFF2C2C2C); // Empty (Dark Grey)
+    if (count == 1) return Colors.green.shade800;   // Low (Visible Dark Green)
+    if (count <= 3) return Colors.green.shade600;   // Medium (Green)
+    return Colors.green.shade400;                   // High (Bright Green)
   }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Parse Data
-    final calendarMap = data["submissionCalendar"] is String
-        ? Map<String, dynamic>.from(jsonDecode(data["submissionCalendar"]))
-        : data["submissionCalendar"];
+    // 1. Robust Data Parsing
+    // We explicitly treat the calendar as a Map<String, dynamic> to avoid type errors
+    Map<String, dynamic> calendarMap = {};
+    
+    try {
+      if (data["submissionCalendar"] != null) {
+        if (data["submissionCalendar"] is String) {
+          calendarMap = jsonDecode(data["submissionCalendar"]);
+        } else {
+          calendarMap = data["submissionCalendar"];
+        }
+      }
+    } catch (e) {
+      print("Error parsing calendar: $e");
+    }
 
+    // Convert timestamps to "yyyy-MM-dd"
     final Map<String, int> normalizedMap = {};
-    if (calendarMap != null) {
-      calendarMap.forEach((key, value) {
+    int totalSubmissionsCalculated = 0; // For Debugging
+
+    calendarMap.forEach((key, value) {
+      try {
         final date = DateTime.fromMillisecondsSinceEpoch(int.parse(key) * 1000);
         final dateKey = DateFormat('yyyy-MM-dd').format(date);
-        normalizedMap[dateKey] = value;
-      });
-    }
+        final count = value as int;
+        normalizedMap[dateKey] = count;
+        totalSubmissionsCalculated += count;
+      } catch (e) {
+        // Skip bad keys
+      }
+    });
 
     // 2. Prepare Data (Last 14 weeks)
     final now = DateTime.now();
@@ -53,19 +73,19 @@ class StaticHeatMap extends StatelessWidget {
             width: 300,
             height: 150,
             child: Padding(
-              // REDUCED PADDING: Gives more room for the "Zoom"
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center, // Centered Header
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // --- Header ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "LeetCode",
-                        style: TextStyle(
+                      // Added Debug Count to verify data is present
+                      Text(
+                        "LeetCode ($totalSubmissionsCalculated)", 
+                        style: const TextStyle(
                           color: Colors.white, 
                           fontWeight: FontWeight.bold, 
                           fontSize: 14
@@ -77,32 +97,30 @@ class StaticHeatMap extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6), // Reduced gap
+                  const SizedBox(height: 6),
 
                   // --- The Grid ---
                   Expanded(
                     child: FittedBox(
                       fit: BoxFit.contain,
-                      // ALIGNMENT CHANGED: Moves it from Left to Center
                       alignment: Alignment.center, 
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(14, (weekIndex) {
                           return Padding(
-                            padding: const EdgeInsets.only(right: 4), // Increased gap slightly
+                            padding: const EdgeInsets.only(right: 4),
                             child: Column(
                               children: List.generate(7, (dayIndex) {
                                 final index = (weekIndex * 7) + dayIndex;
                                 final count = days.length > index ? days[index]["count"] : 0;
                                 
                                 return Container(
-                                  // ZOOM FACTOR: Increased from 10 to 18
                                   width: 18, 
                                   height: 18,
-                                  margin: const EdgeInsets.only(bottom: 4), // Increased gap
+                                  margin: const EdgeInsets.only(bottom: 4),
                                   decoration: BoxDecoration(
                                     color: _colorForCount(count),
-                                    borderRadius: BorderRadius.circular(3), // Slightly rounder
+                                    borderRadius: BorderRadius.circular(3),
                                   ),
                                 );
                               }),
